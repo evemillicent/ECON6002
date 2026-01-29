@@ -1,0 +1,133 @@
+###########################################################################################################################
+###########################################################################################################################
+#                                             ECON 6002: Econometric Methods                                      
+#                                                       Arek Szydlowski
+#                                                     University of Kent
+###########################################################################################################################
+###########################################################################################################################
+
+# Computer Session 2:
+
+library(haven)
+library(dplyr)
+
+## Question 1:
+getwd()
+setwd("~/Documents/UoK TEACHING/EC6002/Seminars")
+
+# Question 2
+
+bes_data <- read_dta("bes_w20_teach.dta")
+
+# Question 3 Narrow down the variables
+
+bes_data <- bes_data[c("id", "country", "p_edlevel", "pincome", "worryCoronaEcon", "gender", "age")]
+
+# Question 4 Sample selection and variables cleaning:
+
+## Question 4 (a)
+
+bes_data <-filter(bes_data,country==1 )
+
+## Question 4 (b)
+
+bes_data <- filter(bes_data,!is.na(p_edlevel))
+
+## Question 4 (c)
+
+bes_data <- filter(bes_data,!is.na(pincome))
+
+# Question 5 Make a table to analyse the main dependent variable "worryCoronaEcon"
+
+t1 <- bes_data %>%
+  group_by(worryCoronaEcon)%>%
+  summarise(n = n()) %>%
+  mutate(percent = round((n / sum(n)), 4))
+
+print(t1)
+
+# Question 6 Transform any Don't know response to NA so it does not act as an outlier in our model.
+
+is.na(bes_data$worryCoronaEcon) <- bes_data$worryCoronaEcon == 9999 
+
+# Question 7
+
+## Question 7 (a) Generate a variable VeryWorried which is equal to 1 if the level of worry about the coronavirus impact on the economy is 7 or greater
+
+bes_data$VeryWorried <- (bes_data$worryCoronaEcon>6)
+
+## Question 7 (b) Generate a dummy variable that is equal to 1 if the respondent is female (male respondents have value of 1, female respondents have value of 2)
+
+bes_data$female <- (bes_data$gender==2)
+
+bes_data$male <- (bes_data$gender==1)
+
+## Question 7 (c) Calculate the logarithmic tranformation for the annual personal income
+
+bes_data$log.pincome <- log(bes_data$pincome) 
+
+# Question 8: Produce summary statistics of key variables
+
+summary(bes_data)
+
+# Question 9: Exclude any missing values (NA) from the key variables.
+
+bes_data <-filter(bes_data, !is.na(worryCoronaEcon))
+
+bes_data <-filter(bes_data, !is.na(log.pincome))
+
+bes_data <-filter(bes_data, !is.na(female))
+
+bes_data <-filter(bes_data, !is.na(male))
+
+bes_data <-filter(bes_data, !is.na(p_edlevel))
+
+bes_data <-filter(bes_data, !is.na(age))
+
+count(bes_data)
+
+# Question 10: Run a univariate regression of "worryCoronaEco" on "pincome" and comment on the coefficient.
+
+q10<-lm(worryCoronaEcon ~ pincome, data = bes_data )
+summary(q10)
+confint(q10)
+
+# Question 11: Run a univariate regression of "worryCoronaEco" on "log.pincome" and comment on the coefficient.
+
+q11<-lm(worryCoronaEcon ~ log.pincome, data = bes_data )
+summary(q11)
+confint(q11)
+
+# Question 12: Run multiple linear regression adding more control variables (female, education level, age)
+
+q12 <- lm(worryCoronaEcon ~ log.pincome+ female + p_edlevel+ age  ,data = bes_data)
+summary(q12)
+confint(q12)
+
+# Question 13: Run multiple linear adding the categorical variables for the level of education.
+
+bes_data$p_edlevel.factor <-factor(bes_data$p_edlevel,
+       levels = c(0,1,2,3,4,5),
+       labels = c("No qualification", "Below GCSE", "GCSE", "A-level", "Undergraduate", "Postgrad"))
+
+q13 <- lm(worryCoronaEcon ~ log.pincome+ female+p_edlevel.factor+ age  ,data = bes_data)
+summary(q13)
+confint(q13)
+
+# Question 14: Run the specification in Question (13) with VeryWorried as a dependent variable.
+
+q14 <- lm(VeryWorried ~ log.pincome+ female+p_edlevel.factor+ age  ,data = bes_data)
+summary(q14)
+confint(q14)
+
+# Question 15 (a) Run regressions in Question (14) for men:
+
+q15.a <- lm(VeryWorried ~ log.pincome +p_edlevel.factor+ age  ,data = bes_data[bes_data$gender==1,]  )
+summary(q15.a)
+confint(q15.a)
+
+# Question 15 (b) Run regressions in Question (14) for women:
+
+q15.b <- lm(VeryWorried ~ log.pincome +p_edlevel.factor+ age  ,data = bes_data[bes_data$gender==2,]  )
+summary(q15.b)
+confint(q15.b)
