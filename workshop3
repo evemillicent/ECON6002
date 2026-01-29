@@ -1,0 +1,70 @@
+library(wooldridge) library(car) data(lawsch85)
+reg1 <- lm(lsalary ~ top10 + r11_25 + r26_40 + r41_60 + LSAT + GPA+ llibvol + lcost , data=lawsch85)
+summary(reg1)
+##
+## Call:
+## lm(formula = lsalary ~ top10 + r11_25 + r26_40 + r41_60 + LSAT +
+##     GPA + llibvol + lcost, data = lawsch85)
+##
+## Residuals:
+##      Min       1Q   Median       3Q      Max
+## -0.28447 -0.05984 -0.00394  0.07130  0.25331
+##
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)
+1
+## (Intercept) 8.363103   0.445731  18.763  < 2e-16 ***
+## top10
+## r11_25
+## r26_40
+## r41_60
+## LSAT
+## GPA
+0.539343   0.053542  10.073  < 2e-16 ***
+0.471620   0.039092  12.064  < 2e-16 ***
+                      8.044 5.29e-13 ***
+                      6.442 2.22e-09 ***
+                      1.732   0.0857 .
+                      1.595   0.1132
+                      2.509   0.0134 *
+                      0.880   0.3807
+0.279098
+0.182382
+0.006048
+0.130589
+0.072552
+0.024917
+0.034697
+0.028310
+0.003492
+0.081868
+0.028921
+0.028322
+## llibvol
+## lcost
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##
+## Residual standard error: 0.09765 on 127 degrees of freedom
+##   (20 observations deleted due to missingness)
+## Multiple R-squared:  0.8833, Adjusted R-squared:  0.8759
+## F-statistic: 120.2 on 8 and 127 DF,  p-value: < 2.2e-16
+
+linearHypothesis(reg1, c("top10=0", "r11_25=0", "r26_40=0", "r41_60=0"))
+##
+## Linear hypothesis test:
+## top10 = 0
+## r11_25 = 0
+## r26_40 = 0
+## r41_60 = 0
+##
+## Model 1: restricted model
+## Model 2: lsalary ~ top10 + r11_25 + r26_40 + r41_60 + LSAT + GPA + llibvol +
+##     lcost
+2
+##
+##
+## 1
+## 2
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
